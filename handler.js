@@ -1,7 +1,13 @@
 'use strict';
 
 const DynamoDb = require(`aws-sdk/clients/dynamodb`);
-const documentClient = new DynamoDb.DocumentClient({region: process.env.REGION});
+const documentClient = new DynamoDb.DocumentClient({
+  region: process.env.REGION,
+  maxRetries: 3,
+  httpOptions: {
+    timeout: 5000
+  }
+});
 const NOTES_TBL_NAME = process.env.NOTES_TBL_NAME;
 
 const send = (statusCode, body) => {
@@ -12,6 +18,7 @@ const send = (statusCode, body) => {
 }
 
 module.exports.createNote = async (event, context, callBack) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   const {id, title, ...body} = JSON.parse(event.body);
   try {
     const param = {
@@ -31,6 +38,7 @@ module.exports.createNote = async (event, context, callBack) => {
 };
 
 module.exports.updateNote = async (event, context, callBack) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   const {id, title, ...body} = JSON.parse(event.body);
   try {
     const param = {
@@ -57,6 +65,7 @@ module.exports.updateNote = async (event, context, callBack) => {
 };
 
 module.exports.deleteNote = async (event, context, callBack) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   const id = event.pathParameters.id;
   try {
     const param = {
@@ -74,6 +83,7 @@ module.exports.deleteNote = async (event, context, callBack) => {
 };
 
 module.exports.getAllNotes = async (event, context, callBack) => {
+  context.callbackWaitsForEmptyEventLoop = false;
   try {
     const param = {
       TableName: NOTES_TBL_NAME,
