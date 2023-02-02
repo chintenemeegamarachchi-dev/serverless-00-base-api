@@ -50,17 +50,38 @@ module.exports.updateNote = async (event, context, callBack) => {
       ConditionExpression: "attribute_exists(notesId)"  
     }
     await documentClient.update(param).promise();
-    callBack(null, send(201, event.body));
+    callBack(null, send(200, event.body));
   }catch(err) {
     return send(500, JSON.stringify(err.message));
   }
 };
 
-module.exports.deleteNote = async (event) => {
+module.exports.deleteNote = async (event, context, callBack) => {
   const id = event.pathParameters.id;
-  return send(200, `Note ${id}, deleted`);
+  try {
+    const param = {
+      TableName: NOTES_TBL_NAME,
+      Key: {
+        notesId: id
+      },
+      ConditionExpression: "attribute_exists(notesId)"  
+    }
+    await documentClient.delete(param).promise();
+    callBack(null, send(200, id));
+  }catch(err) {
+    return send(500, JSON.stringify(err.message));
+  }
 };
 
-module.exports.getAllNotes = async (event) => {
-  return send(200, `All notes`);
+module.exports.getAllNotes = async (event, context, callBack) => {
+  try {
+    const param = {
+      TableName: NOTES_TBL_NAME,
+    }
+    const notes = await documentClient.scan(param).promise();
+    callBack(null, send(200, JSON.stringify(notes)));
+  }catch(err) {
+    return send(500, JSON.stringify(err.message));
+  }
 };
+

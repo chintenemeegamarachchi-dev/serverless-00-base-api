@@ -44,12 +44,22 @@ functions:
           path: /notes/{id}
   deleteNote:
     handler: handler.deleteNote
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt notesTable.Arn  
     events:
       - http:
           method: DELETE
           path: /notes/{id}
   getAllNotes:
     handler: handler.getAllNotes
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt notesTable.Arn  
     events:
       - http:
           method: GET
